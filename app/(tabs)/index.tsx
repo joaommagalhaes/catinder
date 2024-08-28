@@ -1,19 +1,21 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import api from "@/api/axios.config";
 import { CatBreed, CateVote } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { AnimatedIconButton, CatCard, SwiperComponent } from "@/components";
-import { Cross, Heart, Paw } from "@/assets/icons";
+import { SwiperComponent } from "@/components";
+import { Paw } from "@/assets/icons";
 import { COLORS } from "@/constants/Colors";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Swiper, SwiperCardRefType } from "rn-swiper-list";
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const [swipEnd, setSwipEnd] = useState(false);
 
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   const fetchCatBreed = async (): Promise<CatBreed[]> => {
-    const response = await api.get("/breeds?limit=10&page=0");
+    await delay(2000); // just to simulate the efect of loading
+    const response = await api.get("/breeds?limit=10&page=");
     return response.data;
   };
 
@@ -33,12 +35,51 @@ export default function Home() {
 
   const mutation = useMutation({ mutationFn: postVote });
 
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const animateScale = () => {
+      Animated.sequence([
+        Animated.timing(scaleValue, {
+          toValue: 0.9,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleValue, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        animateScale();
+      });
+    };
+
+    animateScale();
+  }, [scaleValue]);
+
   if (isLoading) {
-    return <Text>Loading</Text>;
+    return (
+      <View style={styles.container}>
+        <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+          <Paw color={COLORS.pink} size={100} />
+        </Animated.View>
+        <Text style={styles.noMoreTitle}>Loading your cats!</Text>
+        <Text style={styles.noMoreSubtitle}>Please Wait</Text>
+      </View>
+    );
   }
 
   if (error) {
-    return <Text>Loading</Text>;
+    return (
+      <View style={styles.container}>
+        <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+          <Paw color={COLORS.darkGray} size={100} />
+        </Animated.View>
+        <Text style={styles.noMoreTitle}>Somenting Went Wrong 🙀!</Text>
+        <Text style={styles.noMoreSubtitle}>Go for a walk 🐈!</Text>
+      </View>
+    );
   }
 
   if (data && !swipEnd) {
@@ -56,18 +97,15 @@ export default function Home() {
   if (swipEnd) {
     return (
       <View style={styles.container}>
-        <Paw color={COLORS.pink} size={100} />
+        <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+          <Paw color={COLORS.pink} size={100} />
+        </Animated.View>
         <Text style={styles.noMoreTitle}>No more Cats To Show!</Text>
-        <Text style={styles.noMoreSubtitle}>Go for a walk!</Text>
+        <Text style={styles.noMoreSubtitle}>Go for a walk 🐈!</Text>
       </View>
     );
   } else {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.noMoreTitle}>No Cats To Show!</Text>
-        <Text style={styles.noMoreSubtitle}>Go for a walk!</Text>
-      </View>
-    );
+    return null;
   }
 }
 
@@ -92,5 +130,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 24,
     color: COLORS.darkGray,
+  },
+  toggleContainer: {
+    paddingVertical: 30,
   },
 });
