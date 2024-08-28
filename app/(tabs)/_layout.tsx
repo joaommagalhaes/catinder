@@ -11,6 +11,7 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Paw from "@/assets/icons/Paw";
 import Message from "@/assets/icons/Message";
 import User from "@/assets/icons/User";
+import { COLORS } from "@/constants/Colors";
 
 // Define the type of props for the BottomBar component based on BottomTabBarProps
 type BottomBarProps = BottomTabBarProps;
@@ -45,12 +46,13 @@ const BottomBar: React.FC<BottomBarProps> = ({
 
         // Function to select the correct icon for each tab
         const Icon = () => {
+          const iconColor = isFocused ? COLORS.pink : COLORS.darkGray;
           if (route.name === "index") {
-            return <Paw color={isFocused ? "#EC537E" : "#000"} size={20} />;
+            return <Paw color={iconColor} size={20} />;
           } else if (route.name === "chat") {
-            return <Message color={isFocused ? "#EC537E" : "#000"} size={20} />;
+            return <Message color={iconColor} size={20} />;
           } else if (route.name === "profile") {
-            return <User color={isFocused ? "#EC537E" : "#000"} size={20} />;
+            return <User color={iconColor} size={20} />;
           }
         };
 
@@ -123,14 +125,14 @@ const styles = StyleSheet.create({
     bottom: 50,
     marginHorizontal: 100,
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     borderRadius: 36,
     paddingVertical: 12,
     paddingHorizontal: 24,
     justifyContent: "space-between",
     alignItems: "center",
     elevation: 5, // Add shadow for Android
-    shadowColor: "#000",
+    shadowColor: COLORS.darkGray,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25, // Add shadow for iOS
     shadowRadius: 4,

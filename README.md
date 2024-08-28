@@ -67,3 +67,5 @@ api.interceptors.request.use(
 ```
 
 ### React Query
+
+React Query is a data-fetching for React applications. It simplifies the process of fetching, caching, synchronizing, and updating remote data in the application. With built-in support for query caching, background updates, and stale data management,It also provides tools for handling complex use cases such as pagination, infinite scrolling, and optimistic updates.
