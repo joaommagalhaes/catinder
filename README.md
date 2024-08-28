@@ -23,6 +23,8 @@ This exercise aims to create a React Native application that integrates with an 
 
 ## Run
 
+NOTE: There are a video demo on the root folder.
+
 To run the project, you will need an API key for the server. Place this key in a `.env` file with the name `API_TOKEN`.
 
 Next, install the dependencies by running `yarn` in the root directory of the project.
