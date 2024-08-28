@@ -1,20 +1,37 @@
 import { StyleSheet, Text, View } from "react-native";
 import api from "@/api/axios.config";
-import { CatBreed } from "@/types/types";
-import { useQuery } from "@tanstack/react-query";
-import { AnimatedIconButton, CatCard } from "@/components";
-import { Cross, Heart } from "@/assets/icons";
+import { CatBreed, CateVote } from "@/types/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AnimatedIconButton, CatCard, SwiperComponent } from "@/components";
+import { Cross, Heart, Paw } from "@/assets/icons";
 import { COLORS } from "@/constants/Colors";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Swiper, SwiperCardRefType } from "rn-swiper-list";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
+  const [swipEnd, setSwipEnd] = useState(false);
+
   const fetchCatBreed = async (): Promise<CatBreed[]> => {
     const response = await api.get("/breeds?limit=10&page=0");
     return response.data;
   };
+
+  const postVote = async (imageId: string): Promise<CateVote> => {
+    console.log("Posting vote for:", imageId);
+    const response = await api.post("/votes", {
+      image_id: imageId,
+      value: "1",
+    });
+    return response.data;
+  };
+
   const { data, error, isLoading } = useQuery({
     queryKey: ["catBreeds"],
     queryFn: fetchCatBreed,
   });
+
+  const mutation = useMutation({ mutationFn: postVote });
 
   if (isLoading) {
     return <Text>Loading</Text>;
@@ -24,44 +41,56 @@ export default function Home() {
     return <Text>Loading</Text>;
   }
 
-  const renderCard = (data: CatBreed) => {
+  if (data && !swipEnd) {
     return (
-      <CatCard
-        imageUri={data.image.url}
-        name={data.name}
-        origin={data.origin}
-        rating={data.dog_friendly}
-      />
-    );
-  };
-
-  return (
-    <View style={styles.container}>
-      {renderCard(data[0])}
-      <View style={styles.actionButtonsContainer}>
-        <AnimatedIconButton
-          iconComponent={<Cross size={32} color={COLORS.red} />}
-          onPress={() => {}}
-        />
-        <AnimatedIconButton
-          iconComponent={<Heart size={32} color={COLORS.green} />}
-          onPress={() => {}}
+      <View style={styles.swiperContainer}>
+        <SwiperComponent
+          data={data}
+          onLike={(imageId: string) => mutation.mutate(imageId)}
+          onEnd={() => setSwipEnd(true)}
         />
       </View>
-    </View>
-  );
+    );
+  }
+
+  if (swipEnd) {
+    return (
+      <View style={styles.container}>
+        <Paw color={COLORS.pink} size={100} />
+        <Text style={styles.noMoreTitle}>No more Cats To Show!</Text>
+        <Text style={styles.noMoreSubtitle}>Go for a walk!</Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.noMoreTitle}>No Cats To Show!</Text>
+        <Text style={styles.noMoreSubtitle}>Go for a walk!</Text>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
   },
-  actionButtonsContainer: {
-    flex: 0.3,
-    paddingVertical: 30,
-    flexDirection: "row",
-    gap: 50,
+  swiperContainer: {
+    flex: 0.9,
+    marginTop: 100,
+  },
+  noMoreTitle: {
+    fontSize: 26,
+    lineHeight: 32,
+    fontWeight: "bold",
+    color: COLORS.darkGray,
+    paddingVertical: 16,
+  },
+  noMoreSubtitle: {
+    fontSize: 18,
+    lineHeight: 24,
+    color: COLORS.darkGray,
   },
 });
