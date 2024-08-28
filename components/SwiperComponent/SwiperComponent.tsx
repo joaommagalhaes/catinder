@@ -1,11 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Cross, Heart } from "@/assets/icons";
 import { COLORS } from "@/constants/Colors";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, SwiperCardRefType } from "rn-swiper-list";
-import { useEffect, useRef, useState } from "react";
-import { CatBreed, CateVote } from "@/types/types";
+import { useRef } from "react";
+import { CatBreed } from "@/types/types";
 import CatCard from "../CatCard/CatCard";
 import AnimatedIconButton from "../AnimatedIconButton/AnimatedIconButton";
 
@@ -15,7 +15,6 @@ type SwiperComponentProps = {
   onEnd: () => void;
 };
 
-// create a component
 const SwiperComponent = (props: SwiperComponentProps) => {
   const { data, onEnd, onLike } = props;
   const ref = useRef<SwiperCardRefType>();
@@ -72,7 +71,6 @@ const SwiperComponent = (props: SwiperComponentProps) => {
   );
 };
 
-// define your styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -92,5 +90,4 @@ const styles = StyleSheet.create({
   },
 });
 
-//make this component available to the app
 export default SwiperComponent;

@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/Colors";
 import React from "react";
 import { Animated, StyleSheet, Easing, TouchableOpacity } from "react-native";
 
@@ -48,10 +49,10 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
     borderRadius: 32,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: COLORS.gray,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3.8,
