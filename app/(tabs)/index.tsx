@@ -14,7 +14,7 @@ export default function Home() {
     new Promise((resolve) => setTimeout(resolve, ms));
 
   const fetchCatBreed = async (): Promise<CatBreed[]> => {
-    await delay(2000); // just to simulate the efect of loading
+    await delay(4000); // just to simulate the efect of loading
     const response = await api.get("/breeds?limit=10&page=");
     return response.data;
   };
