@@ -1,59 +1,143 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import React from "react";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Easing,
+} from "react-native";
+import { Tabs } from "expo-router";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import Paw from "@/assets/icons/Paw";
+import Message from "@/assets/icons/Message";
+import User from "@/assets/icons/User";
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+// Define the type of props for the BottomBar component based on BottomTabBarProps
+type BottomBarProps = BottomTabBarProps;
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+// Functional component BottomBar to render the custom bottom navigation bar
+const BottomBar: React.FC<BottomBarProps> = ({
+  state,
+  descriptors,
+  navigation,
+}) => {
+  return (
+    <View style={styles.tabBar}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+        // Check if the current tab is focused
+        const isFocused = state.index === index;
 
+        // Function called when a tab is pressed
+        const onPress = () => {
+          const event = navigation.emit({
+            type: "tabPress",
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          // Navigate to the selected tab if it is not already focused and the event is not prevented
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        // Function to select the correct icon for each tab
+        const Icon = () => {
+          if (route.name === "index") {
+            return <Paw color={isFocused ? "#EC537E" : "#000"} size={20} />;
+          } else if (route.name === "chat") {
+            return <Message color={isFocused ? "#EC537E" : "#000"} size={20} />;
+          } else if (route.name === "profile") {
+            return <User color={isFocused ? "#EC537E" : "#000"} size={20} />;
+          }
+        };
+
+        // Create an animated value for scaling the icon on press
+        const scaleValue = new Animated.Value(1);
+
+        // Handle the press-in event to start the scale animation
+        const handlePressIn = () => {
+          Animated.timing(scaleValue, {
+            toValue: 0.9, // Scale down to 90%
+            duration: 100,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: true,
+          }).start();
+        };
+
+        // Handle the press-out event to reset the scale animation and trigger onPress
+        const handlePressOut = () => {
+          Animated.timing(scaleValue, {
+            toValue: 1, // Scale back to 100%
+            duration: 100,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: true,
+          }).start(() => {
+            onPress(); // Trigger the navigation action
+          });
+        };
+
+        return (
+          <TouchableOpacity
+            key={index}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarTestID}
+            onPress={onPress}
+            style={styles.tabItem}
+          >
+            {Icon()}
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
+
+// The TabLayout component configures the tabs and includes the BottomBar as the custom tab bar
+const TabLayout: React.FC = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
-      />
+        headerShown: false, // Hide the header for all screens
+      }}
+      tabBar={(props) => <BottomBar {...props} />} // Use BottomBar as the tab bar
+    >
+      <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="chat" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
-}
+};
+
+export default TabLayout;
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: "absolute",
+    bottom: 50,
+    marginHorizontal: 100,
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 36,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    justifyContent: "space-between",
+    alignItems: "center",
+    elevation: 5, // Add shadow for Android
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25, // Add shadow for iOS
+    shadowRadius: 4,
+  },
+  tabItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+});
