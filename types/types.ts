@@ -52,4 +52,12 @@ type CatBreed = {
   };
 };
 
-export { CatBreed, SVGIcon };
+type CateVote = {
+  message: string;
+  id: number;
+  image_id: string;
+  value: number;
+  country_code: string;
+};
+
+export { CatBreed, SVGIcon, CateVote };
