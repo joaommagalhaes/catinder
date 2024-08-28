@@ -47,3 +47,25 @@ export default function Cross({ color = "#000", size = 20 }: SVGIcon) {
   );
 }
 ```
+
+### Axios
+
+I used Axios as s HTTP client for making API requests. Axios provides a simple and efficient way to handle network communications.
+To enhance our API interactions, I implemented Axios interceptors. These interceptors allowed us to inject authentication tokens into outgoing requests automatically. Additionally, I utilized interceptors to manage error responses globally.
+
+```javascript
+//example
+api.interceptors.request.use(
+  (config) => {
+    config.headers["x-api-key"] = ` ${API_TOKEN}`;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+```
+
+### React Query
+
+React Query is a data-fetching for React applications. It simplifies the process of fetching, caching, synchronizing, and updating remote data in the application. With built-in support for query caching, background updates, and stale data management,It also provides tools for handling complex use cases such as pagination, infinite scrolling, and optimistic updates.

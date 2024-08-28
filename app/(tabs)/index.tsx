@@ -1,14 +1,53 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
+import api from "@/api/axios.config";
+import { CatBreed } from "@/types/types";
+import { useQuery } from "@tanstack/react-query";
+import { AnimatedIconButton, CatCard } from "@/components";
+import { Cross, Heart } from "@/assets/icons";
+import { COLORS } from "@/constants/Colors";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function Home() {
+  const fetchCatBreed = async (): Promise<CatBreed[]> => {
+    const response = await api.get("/breeds?limit=10&page=0");
+    return response.data;
+  };
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["catBreeds"],
+    queryFn: fetchCatBreed,
+  });
 
-export default function TabOneScreen() {
+  if (isLoading) {
+    return <Text>Loading</Text>;
+  }
+
+  if (error) {
+    return <Text>Loading</Text>;
+  }
+
+  const renderCard = (data: CatBreed) => {
+    return (
+      <CatCard
+        imageUri={data.image.url}
+        name={data.name}
+        origin={data.origin}
+        rating={data.dog_friendly}
+      />
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+      {renderCard(data[0])}
+      <View style={styles.actionButtonsContainer}>
+        <AnimatedIconButton
+          iconComponent={<Cross size={32} color={COLORS.red} />}
+          onPress={() => {}}
+        />
+        <AnimatedIconButton
+          iconComponent={<Heart size={32} color={COLORS.green} />}
+          onPress={() => {}}
+        />
+      </View>
     </View>
   );
 }
@@ -16,16 +55,13 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  actionButtonsContainer: {
+    flex: 0.3,
+    paddingVertical: 30,
+    flexDirection: "row",
+    gap: 50,
   },
 });
